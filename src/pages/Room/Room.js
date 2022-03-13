@@ -2,14 +2,25 @@ import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import "./Room.css";
 import RandomWord from "../../services/RandomWord/RandomWord";
+import AddWord from "../../components/AddWord/AddWord";
 import db from "../../firebase";
-import { collection, doc, getDocs, setDoc ,onSnapshot,query} from "firebase/firestore";
+import {
+  collection,
+  doc,
+  getDocs,
+  setDoc,
+  onSnapshot,
+  query,
+} from "firebase/firestore";
 
 const Room = () => {
   const roomDemo = "room-demo";
-  let [playerList, setplayerList] = useState([]);
+  const bannedWords = "banned-words";
+  let [playerList, setPlayerList] = useState([]);
+  let [bannedWordList, setBannedWordList] = useState([]);
 
   useEffect(() => {
+    getBannedWordList();
     getPlayerList();
     realtime();
   }, []);
@@ -24,14 +35,26 @@ const Room = () => {
     const roomColRef = collection(db, roomDemo);
     const snapshot = await getDocs(roomColRef);
     updatePlayerList(snapshot);
-
   };
+
+  const getBannedWordList = async () => {
+    const bannedWordsRef = collection(db, bannedWords);
+    const snapshot = await getDocs(bannedWordsRef);
+    snapshot.forEach((doc) => {
+      if (doc.data()) {
+        bannedWordList.push(doc.data().word);
+      }
+    });
+    console.log(bannedWordList);
+  };
+
   const realtime = async () => {
     const q = query(collection(db, roomDemo));
     const unsuscribe = onSnapshot(q, (querySnapshot) => {
       getPlayerList();
     });
   };
+
   const updatePlayerList = (snapshot) => {
     playerList = [];
     snapshot.forEach((doc) => {
@@ -39,15 +62,14 @@ const Room = () => {
         playerList.push({ ...doc.data(), docId: doc.id });
       }
     });
-    console.log(playerList);
-    setplayerList(playerList);
+    setPlayerList(playerList);
   };
 
   const setBannedWord = async (playerName, playerId) => {
     const roomColRef = doc(db, roomDemo, playerId);
     let player = {
       playerName: playerName,
-      bannedWord: RandomWord(),
+      bannedWord: RandomWord(bannedWordList),
     };
     await setDoc(roomColRef, player);
     console.log(player);
@@ -59,12 +81,12 @@ const Room = () => {
       return (
         <button
           onClick={randomWord}
-          className="py-2 w-40 rounded-lg bg-indigo-500 text-white"
+          className="py-2 w-full lg:w-4/12 rounded-lg bg-indigo-500 text-white"
         >
           Random Word
         </button>
       );
-    else return <div></div>;
+    else return <div className="hidden"></div>;
   };
 
   const AddWordSection = () => {
@@ -85,9 +107,7 @@ const Room = () => {
         </div>
         <div className="list">
           <div className="flex row py-2">
-            <div className="w-6/12 text-lg font-medium text-gray-900">
-              Name
-            </div>
+            <div className="w-6/12 text-lg font-medium text-gray-900">Name</div>
             <div className="w-6/12 text-lg font-medium text-gray-900">
               Banned Word
             </div>
