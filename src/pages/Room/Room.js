@@ -81,15 +81,6 @@ const Room = () => {
     <div className="Room flex lg:flex-row flex-col min-h-screen w-full items-center justify-center gap-4">
       <div className="flex flex-col w-10/12 lg:w-6/12 space-y-6 bg-white rounded-lg shadow p-10">
         <div className="flex justify-center gap-4">
-          {/* get user list */}
-
-          <button
-            onClick={getPlayerList}
-            className="py-2 w-40 rounded-lg bg-indigo-500 text-white"
-          >
-            Get Player List
-          </button>
-
           <RandomButton></RandomButton>
         </div>
         <div className="list">
