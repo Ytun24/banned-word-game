@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import "./Room.css";
 import RandomWord from "../../services/RandomWord/RandomWord";
 import db from "../../firebase";
-import { collection, doc, getDocs, setDoc } from "firebase/firestore";
+import { collection, doc, getDocs, setDoc ,onSnapshot,query} from "firebase/firestore";
 
 const Room = () => {
   const roomDemo = "room-demo";
@@ -11,22 +11,27 @@ const Room = () => {
 
   useEffect(() => {
     getPlayerList();
+    realtime();
   }, []);
 
   const randomWord = () => {
     playerList.forEach((doc) => {
       setBannedWord(doc.playerName, doc.docId);
     });
-
-    getPlayerList();
   };
 
   const getPlayerList = async () => {
     const roomColRef = collection(db, roomDemo);
     const snapshot = await getDocs(roomColRef);
     updatePlayerList(snapshot);
-  };
 
+  };
+  const realtime = async () => {
+    const q = query(collection(db, roomDemo));
+    const unsuscribe = onSnapshot(q, (querySnapshot) => {
+      getPlayerList();
+    });
+  };
   const updatePlayerList = (snapshot) => {
     playerList = [];
     snapshot.forEach((doc) => {
@@ -63,16 +68,19 @@ const Room = () => {
   };
 
   return (
+
     <div className="Room flex min-h-screen w-full items-center justify-center">
       <div className="flex flex-col w-6/12 space-y-6 bg-white rounded-lg shadow p-10">
         <div className="flex justify-center gap-4">
           {/* get user list */}
+
           <button
             onClick={getPlayerList}
             className="py-2 w-40 rounded-lg bg-indigo-500 text-white"
           >
             Get Player List
           </button>
+
           <RandomButton></RandomButton>
         </div>
         <div className="list">
