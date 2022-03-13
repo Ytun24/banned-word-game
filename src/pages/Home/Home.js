@@ -39,7 +39,7 @@ const Home = () => {
         <div className="flex flex-col w-full gap-6">
           <div className="w-full input-group">
             <label className="block font-medium text-gray-700">
-              Room Number:
+              Room ID:
             </label>
             <input
               name="roomNumber"
