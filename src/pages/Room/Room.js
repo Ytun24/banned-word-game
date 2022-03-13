@@ -67,9 +67,18 @@ const Room = () => {
     else return <div></div>;
   };
 
-  return (
+  const AddWordSection = () => {
+    if (sessionStorage.getItem("playerName") === "host")
+      return (
+        <div className="AddWord flex flex-col w-10/12 lg:w-3/12 space-y-6 bg-white rounded-lg shadow p-10">
+          <AddWord></AddWord>
+        </div>
+      );
+    else return <div className="hidden"></div>;
+  };
 
-    <div className="Room flex min-h-screen w-full items-center justify-center">
+  return (
+    <div className="Room flex lg:flex-row flex-col min-h-screen w-full items-center justify-center gap-4">
       <div className="flex flex-col w-10/12 lg:w-6/12 space-y-6 bg-white rounded-lg shadow p-10">
         <div className="flex justify-center gap-4">
           {/* get user list */}
@@ -106,6 +115,7 @@ const Room = () => {
           })}
         </div>
       </div>
+      <AddWordSection></AddWordSection>
     </div>
   );
 };
