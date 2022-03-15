@@ -4,40 +4,45 @@ import "./Room.css";
 import RandomWord from "../../services/RandomWord/RandomWord";
 import AddWord from "../../components/AddWord/AddWord";
 import db from "../../firebase";
-import {
-  collection,
-  doc,
-  getDocs,
-  setDoc,
-  onSnapshot,
-  query,
-} from "firebase/firestore";
+import { collection, doc, getDocs, setDoc, onSnapshot, deleteDoc, deleteField, updateDoc } from "firebase/firestore";
 
 const Room = () => {
   const roomDemo = "room-demo";
   const bannedWords = "banned-words";
+  let [admin, setAdmin] = useState('');
   let [playerList, setPlayerList] = useState([]);
   let [bannedWordList, setBannedWordList] = useState([]);
-
-  useEffect(() => {
-    getBannedWordList();
-    getPlayerList();
-    realtime();
-  }, []);
-
-  const randomWord = () => {
-    playerList.forEach((doc) => {
-      setBannedWord(doc.playerName, doc.docId);
-    });
-  };
-
+  let roomid = sessionStorage.getItem("roomID")
+  let myName = sessionStorage.getItem("playerName")
   const getPlayerList = async () => {
-    const roomColRef = collection(db, roomDemo);
-    const snapshot = await getDocs(roomColRef);
-    updatePlayerList(snapshot);
+    const docRef = doc(db, "room", roomid);
+    onSnapshot(docRef, (querySnapshot) => {
+      if (querySnapshot.exists()) {
+        // console.log(Object.entries(querySnapshot.data()));
+        getPlayer(querySnapshot.data())
+      }
+      else {
+        window.location.pathname = "/";
+        console.log("No such document!");
+      }
+    });
+    // updatePlayerList(snapshot);
   };
-
+  const getPlayer = (obj) => {
+    let playerLists = [];
+    Object.entries(obj).forEach(([key, value]) => {
+      if (key == "admin" && value == myName) {
+        setAdmin(value)
+        admin = value;
+        getBannedWordList();
+      }
+      else if (key != "admin")
+        playerLists.push({ playerName: key, bannedWord: value })
+    });
+    setPlayerList(playerLists)
+  }
   const getBannedWordList = async () => {
+    bannedWordList.entries()
     const bannedWordsRef = collection(db, bannedWords);
     const snapshot = await getDocs(bannedWordsRef);
     snapshot.forEach((doc) => {
@@ -45,42 +50,25 @@ const Room = () => {
         bannedWordList.push(doc.data().word);
       }
     });
-    console.log(bannedWordList);
+    // console.log(bannedWordList);
   };
-
-  const realtime = async () => {
-    const q = query(collection(db, roomDemo));
-    const unsuscribe = onSnapshot(q, (querySnapshot) => {
-      getPlayerList();
-    });
-  };
-
-  const updatePlayerList = (snapshot) => {
-    playerList = [];
-    snapshot.forEach((doc) => {
-      if (doc.data()) {
-        playerList.push({ ...doc.data(), docId: doc.id });
-      }
-    });
-    setPlayerList(playerList);
-  };
-
-  const setBannedWord = async (playerName, playerId) => {
-    const roomColRef = doc(db, roomDemo, playerId);
-    let player = {
-      playerName: playerName,
-      bannedWord: RandomWord(bannedWordList),
-    };
-    await setDoc(roomColRef, player);
-    console.log(player);
-  };
-
+  const randomWordBanned = () => {
+    var obj = {};
+    playerList.map((data) => {
+      const index = Math.floor(Math.random() * bannedWordList.length);
+      obj[data.playerName] = bannedWordList[index];
+      bannedWordList.splice(index, 1);
+    })
+    const cityRef = doc(db, 'room', roomid);
+    setDoc(cityRef, obj, { merge: true });
+  }
+  // Component
   const RandomButton = () => {
     /* start random word to every player */
-    if (sessionStorage.getItem("playerName") === "host")
+    if (sessionStorage.getItem("playerName") === admin)
       return (
         <button
-          onClick={randomWord}
+          onClick={randomWordBanned}
           className="py-2 w-full lg:w-4/12 rounded-lg bg-indigo-500 text-white"
         >
           Random Word
@@ -88,9 +76,8 @@ const Room = () => {
       );
     else return <div className="hidden"></div>;
   };
-
   const AddWordSection = () => {
-    if (sessionStorage.getItem("playerName") === "host")
+    if (sessionStorage.getItem("playerName") === admin)
       return (
         <div className="AddWord flex flex-col w-10/12 lg:w-3/12 space-y-6 bg-white rounded-lg shadow p-10">
           <AddWord></AddWord>
@@ -98,10 +85,34 @@ const Room = () => {
       );
     else return <div className="hidden"></div>;
   };
-
+  const logOut = async () => {
+    console.log("logout")
+    if (sessionStorage.getItem("playerName") === admin) {
+      console.log("Host")
+      await deleteDoc(doc(db, "room", roomid));
+    } else {
+      console.log("Player")
+      const cityRef = doc(db, 'room', roomid);
+      var obj = {};
+      obj[myName] = deleteField();
+      await updateDoc(cityRef, obj);
+    }
+  }
+  useEffect(() => {
+    getPlayerList();
+    console.log('RoomID:', roomid)
+    console.log('YourName:', sessionStorage.getItem("playerName"))
+    window.addEventListener("beforeunload", (ev) => {
+      logOut();
+      // ev.preventDefault();
+      // return ev.returnValue = 'Are you sure you want to close?';
+    });
+  }, []);
+  // Component
   return (
-    <div className="Room flex lg:flex-row flex-col min-h-screen w-full items-center justify-center gap-4">
+    <div id="click" className="Room flex lg:flex-row flex-col min-h-screen w-full items-center justify-center gap-4">
       <div className="flex flex-col w-10/12 lg:w-6/12 space-y-6 bg-white rounded-lg shadow p-10">
+        <span>Room ID: {roomid}</span>
         <div className="flex justify-center gap-4">
           <RandomButton></RandomButton>
         </div>
