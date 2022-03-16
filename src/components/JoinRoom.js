@@ -33,7 +33,7 @@ const JoinRoom = ({ setRoomID, setStartGame }) => {
     return (
         <div className="Join flex h-screen w-full items-center justify-center">
             <div className="flex flex-col space-y-6 w-10/12 lg:w-6/12 h-fit items-center justify-center bg-white shadow px-10 py-20 rounded-lg">
-                <h1 className="text-3xl font-bold underline text-indigo-500">Don't say that word! JoinRom</h1>
+                <h1 className="text-3xl font-bold underline text-indigo-500">Don't say that word!</h1>
                 <div className="flex flex-col w-full gap-6">
                     <div className="w-full input-group pt-5">
                         <label className="block font-medium text-gray-700">

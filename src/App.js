@@ -1,8 +1,4 @@
 import "./App.css";
-import Home from "./pages/Home/Home";
-import Room from "./pages/Room/Room";
-import Join from "./pages/Join/Join";
-import { Routes, Route } from "react-router-dom";
 import HomePage from "./components/HomePage";
 import JoinRoom from "./components/JoinRoom";
 import PlayGame from "./components/PlayGame";
