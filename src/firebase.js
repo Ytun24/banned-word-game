@@ -6,8 +6,6 @@ import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import 'firebase/firestore';
 
-console.log(process.env.REACT_APP_API_KEY, process.env.NODE_ENV, process.env.REACT_APP_PROJECT_ID);
-
 // Your web app's Firebase configuration
 const firebaseConfig = {
   apiKey: process.env.REACT_APP_API_KEY,
