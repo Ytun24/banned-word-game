@@ -18,7 +18,7 @@ const Home = () => {
       // window.location.pathname = "/join";
     }
     else
-      setHelpText("ใส่ชื่อด้วยครับ<<")
+      setHelpText("Please input player name.")
   };
   const createRoom = async () => {
     if (playerName) {
@@ -31,7 +31,7 @@ const Home = () => {
       window.location.pathname = "/room";
     }
     else
-      setHelpText("ใส่ชื่อด้วยครับ<<")
+      setHelpText("Please input player name.")
   }
   const randomRoomID = (size) => {
     const text = 'qwertyuiopasdfghjklzxcvbnm';
@@ -67,7 +67,7 @@ const Home = () => {
               onChange={(e) => setPlayerName(e.target.value)}
               className="block w-full py-2 px-3 sm:text-sm border border-gray-300 rounded-md text-center"
             ></input>
-            <label>{helpText} </label>
+            <label className="pt-1 text-sm text-rose-800">{helpText} </label>
           </div>
         </div>
         <div className="w-full">
